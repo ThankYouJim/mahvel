@@ -6,6 +6,36 @@ import ReactPaginate from 'react-paginate';
 import Loader from './Loader';
 import '../component/reactPaginate.css';
 
+// credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
+// q: query, list: an array type
+function filterList(q, list) {
+  function escapeRegExp(s) {
+    return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+  }
+  const words = q
+    .split(/\s+/g)
+    .map(s => s.trim())
+    .filter(s => !!s);
+  const hasTrailingSpace = q.endsWith(" ");
+  const searchRegex = new RegExp(
+    words
+      .map((word, i) => {
+        if (i + 1 === words.length && !hasTrailingSpace) {
+          // The last word - ok with the word being "startswith"-like
+          return `(?=.*\\b${escapeRegExp(word)})`;
+        } else {
+          // Not the last word - expect the whole word exactly
+          return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+        }
+      })
+      .join("") + ".+",
+    "gi"
+  );
+  return list.filter(item => {
+    return searchRegex.test(item.title);
+  });
+}
+
 class App extends React.Component {
 	state = {
 		loading: false,
@@ -19,14 +49,9 @@ class App extends React.Component {
 	loadResponse = async(form={term:''}) => {
 		this.setState({ loading: true });
 		const term = form.term;
-		console.log('Searching', term, this.state.loading);
-
-		// + characters
-		// + creators
-		// + comic
-		// + events
-		// + series
-		// + stories
+		// const length = await cache.store.length();
+		console.log('Searching', term);
+		// console.log('Cache length:', length);
 
 		await marvel.get('/comics', {
 			params: {
@@ -37,13 +62,20 @@ class App extends React.Component {
 		.then(searchResult => {
 			const datas = searchResult.data.data;
 			const results = datas.results;
-
+			console.log("Res:", results);
 			// const filter = results.filter(result => result.title.toLowerCase().indexOf(term.toLowerCase()) > -1);
+			const filter = filterList(term, results);
+
+			// if available != 0
+			// [result].characters.items[].name
+			// [result.creators.items[].name
+			// + events
+			// [result].series.name
+			// + stories
 
 			this.setState({
 				loading: false,
-				cache: results,
-				// cache: filter,
+				cache: filter,
 				pages: Math.ceil(datas.total/datas.limit),
 				term: term
 			})
@@ -68,7 +100,7 @@ class App extends React.Component {
 	changeLimit = limit => {
 		this.setState({ limit });
 		console.log(this.state.limit);
-		// todo: using cache, reloadd page
+		// todo: using cache, reload page
 	}
 
 	renderContent() {
