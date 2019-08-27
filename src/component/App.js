@@ -1,10 +1,17 @@
 import React from 'react';
+import axios from 'axios';
 import SearchBar from './SearchBar';
 import ImageGrid from './ImageGrid';
 import marvel from '../api/marvel';
 import ReactPaginate from 'react-paginate';
 import Loader from './Loader';
 import '../component/reactPaginate.css';
+
+// async componentDidMount() {
+//   const response = await fetch(`https://api.coinmarketcap.com/v1/ticker/?limit=10`);
+//   const json = await response.json();
+//   this.setState({ data: json });
+// }
 
 // credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
 // q: query, list: an array type
@@ -36,56 +43,79 @@ function filterList(q, list) {
   });
 }
 
+function callCharacters() {
+	return marvel.get('/characters');
+}
+
+function callComics() {
+	let cache = [];
+	const firstRun = marvel.get('/comics');
+	const total = firstRun.total;
+	// for (let i = 20; i < total; i+=100) {
+		const comics = marvel.get('/comics', {
+			params: {
+				offset: 20,
+				limit: 100
+			}
+		});
+		cache = [...cache, comics.data.data.results];
+	// }
+	return cache;
+}
+
+function callCreators() {
+	return marvel.get('/creators');
+}
+
+function callEvents() {
+	return marvel.get('./events');
+}
+
+// TODO: click on series to get to a temp page showing all comics in series
+function callSeries() {
+	return marvel.get('./series');
+}
+
+function callStories() {
+	return marvel.get('./stories');
+}
+
 class App extends React.Component {
 	state = {
 		loading: false,
-		cache: [],
+		cache: [],	// to store the results
 		pages: 0,
 		term: '',
-		limit: 20,
-		offset: 0
+		limit: 20,	// shows how many results per page
+		offset: 0,	// shows different set of results 
+		total: 0		// the total number of result
 	};
 
 	loadResponse = async(form={term:''}) => {
 		this.setState({ loading: true });
 		const term = form.term;
-		// const length = await cache.store.length();
 		console.log('Searching', term);
-		// console.log('Cache length:', length);
 
-		await marvel.get('/comics', {
-			params: {
-				limit: this.state.limit,
-				offset: this.state.offset
-			}
-		})
-		.then(searchResult => {
-			const datas = searchResult.data.data;
-			const results = datas.results;
-			console.log("Res:", results);
-			// const filter = results.filter(result => result.title.toLowerCase().indexOf(term.toLowerCase()) > -1);
-			const filter = filterList(term, results);
-
-			// if available != 0
-			// [result].characters.items[].name
-			// [result.creators.items[].name
-			// + events
-			// [result].series.name
-			// + stories
+		// TODO: add for character, creator etc
+		await axios.all([callComics()])
+		.then(axios.spread(comics => {
+			// deal with results here
+			console.log(comics);
+			// const datas = comics.data.data;
+			// console.log("datas:", datas);
+			// const results = datas.results;
+			// console.log("Res:", results);
+			const filter = filterList(term, comics);
 
 			this.setState({
 				loading: false,
 				cache: filter,
 				pages: Math.ceil(datas.total/datas.limit),
 				term: term
-			})
-		})
-		.catch(error => {
-			console.log(error);
-		})
-		.then(() => {
-			console.log('Finish!');
-		});
+			});
+		}))
+		.catch(error => console.log(error))
+		.then(() => console.log("Search done!"));
 	}
 
 	handlePageClick = data => {
