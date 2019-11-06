@@ -6,62 +6,44 @@ import ReactPaginate from 'react-paginate';
 import Loader from './Loader';
 import '../component/reactPaginate.css';
 
-// credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
 // q: query, list: an array type
+// credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
 function filterList(q, list) {
-  function escapeRegExp(s) {
-    return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
-  }
-  const words = q
-    .split(/\s+/g)
-    .map(s => s.trim())
-    .filter(s => !!s);
-  const hasTrailingSpace = q.endsWith(" ");
-  const searchRegex = new RegExp(
-    words
-      .map((word, i) => {
-        if (i + 1 === words.length && !hasTrailingSpace) {
-          // The last word - ok with the word being "startswith"-like
-          return `(?=.*\\b${escapeRegExp(word)})`;
-        } else {
-          // Not the last word - expect the whole word exactly
-          return `(?=.*\\b${escapeRegExp(word)}\\b)`;
-        }
-      })
-      .join("") + ".+",
-    "gi"
-  );
-  return list.filter(item => {
-    return searchRegex.test(item.title);
-  });
+    function escapeRegExp(s) {
+        return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+    }
+    const words = q
+        .split(/\s+/g)
+        .map(s => s.trim())
+        .filter(s => !!s);
+    const hasTrailingSpace = q.endsWith(" ");
+    const searchRegex = new RegExp(
+        words
+            .map((word, i) => {
+                if (i + 1 === words.length && !hasTrailingSpace) {
+                    // The last word - ok with the word being "startswith"-like
+                    return `(?=.*\\b${escapeRegExp(word)})`;
+                } else {
+                    // Not the last word - expect the whole word exactly
+                    return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+                }
+            })
+            .join("") + ".+",
+        "gi"
+    );
+    return list.filter(item => {
+        return searchRegex.test(item.title);
+    });
 }
-
-// function callCharacters() {
-// 	return marvel.get('/characters');
-// }
-
-// function callCreators() {
-// 	return marvel.get('/creators');
-// }
-
-// function callEvents() {
-// 	return marvel.get('./events');
-// }
-
-// // TODO: click on series to get to a temp page showing all comics in series
-// function callSeries() {
-// 	return marvel.get('./series');
-// }
-
-// function callStories() {
-// 	return marvel.get('./stories');
-// }
 
 class App extends React.Component {
     state = {
         loading: false,
-        cache: [],	// to store the results
-        filter: [],	// the filtered results from cache
+        cache: [],	// to store all results
+        series: [],
+        characters: [],
+        creators: [],
+        events: [],        
         term: '',
         pages: 0, 	// total of pages for paginator
         limit: 20,	// shows how many results per page
@@ -82,69 +64,107 @@ class App extends React.Component {
     //   })
     // }
 
-    async cacheComics() {
-        let cache = [];
-        let callLimit = 100;
-        const firstRun = await marvel.get('/comics');
-        const total = firstRun.data.data.total;
-        const count = firstRun.data.data.count;
-        cache = firstRun.data.data.results;
-        // for (let i = count; i < total; i+=100) {
-        const comics = await marvel.get('/comics', {
+    /* Priority of display
+     * series - eg. The Avengers Series, Spider-man series, may include reboots
+     * character
+     * creators
+     * events/stories - Homepage does not have stories so I'm ignoring
+
+    .limit - the set limited number of returns (default 20)
+    .total - resources available out of the limited set
+    .count - totla number of result of this call
+    .results - list of characters
+    */
+
+    async cacheSeries(term) {
+        const series = await marvel.get('/series', {
             params: {
-                offset: count,
-                limit: callLimit
+                titleStartsWith: term
+            }
+        })
+        if (series !== undefined)
+            this.setState({ series });
+    }
+
+    async cacheCharacters(term) {
+        const characters = await marvel.get('/characters', {
+            params: {
+                nameStartsWith: term
             }
         });
-        cache = cache.concat(comics.data.data.results);
+        if (characters !== undefined)
+            this.setState({ characters });
+    }
+
+    async cacheCreators(term) {
+        const series = await marvel.get('/creators', {
+            params: {
+                nameStartsWith: term
+            }
+        })
+        if (creators !== undefined)
+            this.setState({ creators });
+    }
+
+    async cacheEvents(term) {
+        const events = await marvel.get('/events', {
+            params: {
+                nameStartsWith: term
+            }
+        })
+        if (events !== undefined)
+            this.setState({ events });
+    }
+
+    async cacheComics() {
+        console.log("Caching comics!");
+
+        let cache = [];
+        //let callLimit = 100;
+        const all = await marvel.get('/comics');
+        const total = all.data.data.total;
+        //const count = all.data.data.count;  // Marvel API's default number of results
+        console.log('Total results:', total); 
+        cache = all.data.data.results;
+        console.log('cache', cache);
+        // for (let i = count; i < total; i+=100) {
+        //const comics = await marvel.get('/comics', {
+        //    params: {
+        //        offset: count,
+        //        limit: callLimit
+        //    }
+        //});
+        //cache = cache.concat(comics.data.data.results);
         // }
-        this.setState({
-            cache: cache,
-            pages: Math.ceil(total / this.state.limit)
-        });
+        this.setState({ cache });
     }
 
     // Bugs: searching using keyword will not load the correct batch, and shows total results of cache
-    // The filter and cache might be getting duplicated somewherer and the console is complaining about keys
     loadResponse = async (form = { term: '' }) => {
-        // To activate the loader
-        this.setState({ loading: true });
+        if (form.term !== '') {
+            // first load. If the state cache is empty, load all the comics*
+            if (this.state.cache === undefined || this.state.cache.length === 0) {
+                // await this.cacheComics();
+                await this.cacheCharacters(form.term);
+            }
 
-        const term = form.term;
-        console.log('Searching', term);
-
-        // cache the comics if no request has been called yet
-        if (this.state.cache === undefined || this.state.cache.length === 0) {
-            console.log("Making cache!");
-            this.cacheComics();
+            // console.log('Term: ', form.term);
+            // const filter = filterList(form.term, this.state.cache);
+            // console.log(filter);
+            // this.setState({
+            //     filter: filter,
+            //     term: form.term,
+            //     pages: Math.ceil(filter.length / this.state.limit)
+            // });
         }
 
-        //if user has input a search term, update the filter-cache, term, and pages
-        if (term !== '') {
-            const filter = filterList(term, this.state.cache);
-            this.setState({
-                filter: filter,
-                term: term,
-                pages: Math.ceil(filter.length / this.state.limit)
-            })
-        }
-        // clean up the search result cache
-        else {
-            this.setState({
-                filter: [],
-                term: '',
-                pages: Math.ceil(this.state.cache.length / this.state.limit)
-            })
-        }
-        //this.setState({ loading: false });	// finally, set loading to false to stop the loading animation
-
-        // TODO: add for character, creator etc
-        // await axios.all(	cacheComics()])
-        // .then(axios.spread(comics => {
-        // deal with results here
-        // 	}))
-        // 	.catch(error => console.log(error))
-        // 	.then(() => console.log("Search done!"));
+            // TODO: add for character, creator etc
+            // await axios.all(	cacheComics()])
+            // .then(axios.spread(comics => {
+            // deal with results here
+            // 	}))
+            // 	.catch(error => console.log(error))
+            // 	.then(() => console.log("Search done!"));
     }
 
     handlePageClick = data => {
@@ -156,86 +176,83 @@ class App extends React.Component {
         });
     }
 
-    changeLimit = limit => {
-        this.setState({ limit });
-        console.log(this.state.limit);
+    //changeLimit = limit => {
+    //    this.setState({ limit });
+    //    console.log(this.state.limit);
         // this.renderContent();	// re-render with new limit per page
-    }
+    //}
 
     renderContent() {
-        let message;
-        let buffer;
-        // if user has input a search term 
-        if (this.state.term && this.state.filter.length > 0) {
-            buffer = this.state.filter;
-        }
-        else {
-            buffer = this.state.cache;
-        }
+        //return (
+        //    <div className="ui container">
+        //        <h3>{message}</h3>
 
-        if (buffer === undefined && buffer.length === 0) {
-            message = 'No results for ' + this.state.term;
-        }
-        else {
-            message = 'Showing ' + this.state.limit + ' results for ' + this.state.term;
-        }
+        //        <div className="showN">
+        //            <label>Show: </label>
+        //            <div className="ui buttons mini">
+        //                <button className="ui button" onClick={e => this.changeLimit(20)}>20</button>
+        //                <button className="ui button" onClick={e => this.changeLimit(50)}>50</button>
+        //                <button className="ui button" onClick={e => this.changeLimit(100)}>100</button>
+        //            </div>
+        //        </div>
 
-        return (
-            <div className="ui container">
-                <h3>{message}</h3>
+        //        <ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
+        //        <div id="react-paginate" className="ui pagination menu">
+        //            <ReactPaginate
+        //                previousLabel={'previous'}
+        //                nextLabel={'next'}
+        //                breakLabel={'...'}
+        //                breakClassName={'break-me'}
+        //                pageCount={this.state.pages}
+        //                marginPagesDisplayed={2}
+        //                pageRangeDisplayed={5}
+        //                onPageChange={this.handlePageClick}
+        //                containerClassName={'pagination'}
+        //                subContainerClassName={'pages pagination'}
+        //                activeClassName={'active'}
+        //            />
+        //        </div>
+        //    </div>
+        //);
 
-                <div className="showN">
-                    <label>Show: </label>
-                    <div className="ui buttons mini">
-                        <button className="ui button" onClick={e => this.changeLimit(20)}>20</button>
-                        <button className="ui button" onClick={e => this.changeLimit(50)}>50</button>
-                        <button className="ui button" onClick={e => this.changeLimit(100)}>100</button>
+        // if user has input a search term and the valid results are in the filtered cache
+        // TODO: optional segments depending on the results returned
+        if (this.state.term !== '' && this.state.comics.length > 0) {
+            return (
+                <div className="ui vertical stripe segment">
+                    <div className="ui container">
+                        <span className="ui header">{this.state.filter.length} results for {this.state.term}</span>
+                        <div className="ui container">
+                            <ImageGrid title='Comics' results={this.state.filter} />
+                        </div>
                     </div>
                 </div>
-
-                <ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
-                <div id="react-paginate" className="ui pagination menu">
-                    <ReactPaginate
-                        previousLabel={'previous'}
-                        nextLabel={'next'}
-                        breakLabel={'...'}
-                        breakClassName={'break-me'}
-                        pageCount={this.state.pages}
-                        marginPagesDisplayed={2}
-                        pageRangeDisplayed={5}
-                        onPageChange={this.handlePageClick}
-                        containerClassName={'pagination'}
-                        subContainerClassName={'pages pagination'}
-                        activeClassName={'active'}
-                    />
-                </div>
-            </div>
-        );
+            );
+        }
+        else
+            return <span>Nothing to see here.</span>;
     }
 
-    loading(message) {
-        if (this.state.loading)
-            return <Loader message={message} />;
-    }
+    //loading(message) {
+    //    if (this.state.loading)
+    //        return <Loader message={message} />;
+    //}
 
+    // TODO: add graphics on the side of the masthead
+    // TODO: add api, github repo, linked in and contact as banner
     render() {
         return (
-            <div className="pusher">
-                <div className="ui vertical stripe masthead center aligned segment">
-                    <div className="ui container">
-                        <h1 className="ui header">Marvel Comic Viewer</h1>
+            <div className='pusher'>
+                <div className='ui inverted vertical masthead center aligned segment'>
+                    <div className='ui text container'>
+                        <h1 className='ui inverted header'>Marvel Comic Viewer</h1>
                         <SearchBar onSubmit={this.loadResponse} />
                     </div>
                 </div>
-                <div className="ui vertical stripe segment">
-                    <div className="ui container">
-                        {this.renderContent()}
-                    </div>
-                </div>
+                {this.renderContent()}
             </div>
         );
     }
-
 }
 
 export default App;
