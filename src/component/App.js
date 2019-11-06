@@ -58,170 +58,184 @@ function filterList(q, list) {
 // }
 
 class App extends React.Component {
-	state = {
-		loading: false,
-		cache: [],	// to store the results
-		filter: [],	// the filtered results from cache
-		term: '',
-		pages: 0, 	// total of pages for paginator
-		limit: 20,	// shows how many results per page
-		offset: 0,	// shows different set of results for paginator
-		// total: 0		// the total number of result
-	};
+    state = {
+        loading: false,
+        cache: [],	// to store the results
+        filter: [],	// the filtered results from cache
+        term: '',
+        pages: 0, 	// total of pages for paginator
+        limit: 20,	// shows how many results per page
+        offset: 0,	// shows different set of results for paginator
+        // total: 0		// the total number of result
+    };
 
-	// async componentDidMount() {
-	// 	this.setState({ loading: true });
-	//   // const response = await fetch(`https://api.coinmarketcap.com/v1/ticker/?limit=10`);
-	//   // const json = await response.json();
-	//   // this.setState({ data: json });
-	//   const comics =	cacheComics();
-	//   this.setState({
-	//   	loading: true,
-	//   	cache: comics.results,
-	//   	pages: Math.ceil(comics.total/comics.limit),
-	//   })
-	// }
+    // async componentDidMount() {
+    // 	this.setState({ loading: true });
+    //   // const response = await fetch(`https://api.coinmarketcap.com/v1/ticker/?limit=10`);
+    //   // const json = await response.json();
+    //   // this.setState({ data: json });
+    //   const comics =	cacheComics();
+    //   this.setState({
+    //   	loading: true,
+    //   	cache: comics.results,
+    //   	pages: Math.ceil(comics.total/comics.limit),
+    //   })
+    // }
 
-	async cacheComics() {
-		let cache = [];
-		let callLimit = 100;
-		const firstRun = await marvel.get('/comics');
-		const total = firstRun.data.data.total;
-		const count = firstRun.data.data.count;
-		cache = firstRun.data.data.results;
-		// for (let i = count; i < total; i+=100) {
-			const comics = await marvel.get('/comics', {
-				params: {
-					offset: count,
-					limit: callLimit
-				}
-			});
-			cache = cache.concat(comics.data.data.results);
-		// }
-		this.setState({
-			cache: cache,
-			pages: Math.ceil(total/this.state.limit)
-		});
-	}
+    async cacheComics() {
+        let cache = [];
+        let callLimit = 100;
+        const firstRun = await marvel.get('/comics');
+        const total = firstRun.data.data.total;
+        const count = firstRun.data.data.count;
+        cache = firstRun.data.data.results;
+        // for (let i = count; i < total; i+=100) {
+        const comics = await marvel.get('/comics', {
+            params: {
+                offset: count,
+                limit: callLimit
+            }
+        });
+        cache = cache.concat(comics.data.data.results);
+        // }
+        this.setState({
+            cache: cache,
+            pages: Math.ceil(total / this.state.limit)
+        });
+    }
 
-	loadResponse = async(form={term:''}) => {
-		this.setState({ loading: true });
+    // Bugs: searching using keyword will not load the correct batch, and shows total results of cache
+    // The filter and cache might be getting duplicated somewherer and the console is complaining about keys
+    loadResponse = async (form = { term: '' }) => {
+        // To activate the loader
+        this.setState({ loading: true });
 
-		const term = form.term;
-		console.log('Searching', term);
+        const term = form.term;
+        console.log('Searching', term);
 
-		// cache the comics if no request has been called yet
-		if (this.state.cache === undefined || this.state.cache.length === 0) {
-			this.cacheComics();
-		}
+        // cache the comics if no request has been called yet
+        if (this.state.cache === undefined || this.state.cache.length === 0) {
+            console.log("Making cache!");
+            this.cacheComics();
+        }
 
-		// if user has input a search term, update the filter-cache, term, and pages
-		if (term !== '') {
-			const filter = filterList(term, this.state.cache);
-			this.setState({
-				filter: filter,
-				term: term,
-				pages: Math.ceil(filter.length()/this.state.limit)
-			})
-		}
-		// clean up the search result cache
-		else {
-			this.setState({
-				filter: [],
-				term: '',
-				pages: Math.ceil(this.state.cache.length/this.state.limit)
-			})
-		}
-		this.setState({ loading: false });	// finally, set loading to false to stop the loading animation
+        //if user has input a search term, update the filter-cache, term, and pages
+        if (term !== '') {
+            const filter = filterList(term, this.state.cache);
+            this.setState({
+                filter: filter,
+                term: term,
+                pages: Math.ceil(filter.length / this.state.limit)
+            })
+        }
+        // clean up the search result cache
+        else {
+            this.setState({
+                filter: [],
+                term: '',
+                pages: Math.ceil(this.state.cache.length / this.state.limit)
+            })
+        }
+        //this.setState({ loading: false });	// finally, set loading to false to stop the loading animation
 
-		// TODO: add for character, creator etc
-		// await axios.all(	cacheComics()])
-		// .then(axios.spread(comics => {
-			// deal with results here
-	// 	}))
-	// 	.catch(error => console.log(error))
-	// 	.then(() => console.log("Search done!"));
-	}
+        // TODO: add for character, creator etc
+        // await axios.all(	cacheComics()])
+        // .then(axios.spread(comics => {
+        // deal with results here
+        // 	}))
+        // 	.catch(error => console.log(error))
+        // 	.then(() => console.log("Search done!"));
+    }
 
-	handlePageClick = data => {
-    let selected = data.selected;
-    let offset = Math.ceil(selected * this.state.limit);
+    handlePageClick = data => {
+        let selected = data.selected;
+        let offset = Math.ceil(selected * this.state.limit);
 
-    this.setState({ offset }, () => {
-      // this.loadResponse();
-    });
-	}
+        this.setState({ offset }, () => {
+            // this.loadResponse();
+        });
+    }
 
-	changeLimit = limit => {
-		this.setState({ limit });
-		console.log(this.state.limit);
-		// this.renderContent();	// re-render with new limit per page
-	}
+    changeLimit = limit => {
+        this.setState({ limit });
+        console.log(this.state.limit);
+        // this.renderContent();	// re-render with new limit per page
+    }
 
-	renderContent() {
-		let message;
-		let buffer;
-		if (this.state.term && this.state.filter.length > 0) {
-			buffer = this.state.filter;
-		}
-		else {
-			buffer = this.state.cache;
-		}
+    renderContent() {
+        let message;
+        let buffer;
+        // if user has input a search term 
+        if (this.state.term && this.state.filter.length > 0) {
+            buffer = this.state.filter;
+        }
+        else {
+            buffer = this.state.cache;
+        }
 
-		if (buffer === undefined && buffer.length === 0) {
-			message = 'No results for ' + this.state.term;
-		}
-		else {
-			message = 'Showing ' + this.state.limit + ' results for ' + this.state.term;
-		}
+        if (buffer === undefined && buffer.length === 0) {
+            message = 'No results for ' + this.state.term;
+        }
+        else {
+            message = 'Showing ' + this.state.limit + ' results for ' + this.state.term;
+        }
 
-		return (
-			<div className="ui container">
-				<h3>{message}</h3>
+        return (
+            <div className="ui container">
+                <h3>{message}</h3>
 
-					<div className="showN">
-						<label>Show: </label>
-						<div className="ui buttons mini">
-							<button className="ui button" onClick={e=>this.changeLimit(20)}>20</button>
-							<button className="ui button" onClick={e=>this.changeLimit(50)}>50</button>
-							<button className="ui button" onClick={e=>this.changeLimit(100)}>100</button>
-						</div>
-					</div>
+                <div className="showN">
+                    <label>Show: </label>
+                    <div className="ui buttons mini">
+                        <button className="ui button" onClick={e => this.changeLimit(20)}>20</button>
+                        <button className="ui button" onClick={e => this.changeLimit(50)}>50</button>
+                        <button className="ui button" onClick={e => this.changeLimit(100)}>100</button>
+                    </div>
+                </div>
 
-					<ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
-					<div id="react-paginate" className="ui pagination menu">
-						<ReactPaginate
-				      previousLabel={'previous'}
-				      nextLabel={'next'}
-				      breakLabel={'...'}
-				      breakClassName={'break-me'}
-				      pageCount={this.state.pages}
-				      marginPagesDisplayed={2}
-				      pageRangeDisplayed={5}
-				      onPageChange={this.handlePageClick}
-				      containerClassName={'pagination'}
-				      subContainerClassName={'pages pagination'}
-				      activeClassName={'active'}
-						/>
-					</div>
-			</div>
-		);
-	}
+                <ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
+                <div id="react-paginate" className="ui pagination menu">
+                    <ReactPaginate
+                        previousLabel={'previous'}
+                        nextLabel={'next'}
+                        breakLabel={'...'}
+                        breakClassName={'break-me'}
+                        pageCount={this.state.pages}
+                        marginPagesDisplayed={2}
+                        pageRangeDisplayed={5}
+                        onPageChange={this.handlePageClick}
+                        containerClassName={'pagination'}
+                        subContainerClassName={'pages pagination'}
+                        activeClassName={'active'}
+                    />
+                </div>
+            </div>
+        );
+    }
 
-	loading(message) {
-		if (this.state.loading)
-			return <Loader message={message} />;
-	}
+    loading(message) {
+        if (this.state.loading)
+            return <Loader message={message} />;
+    }
 
-	render() {
-		return (
-			<div className="ui container">
-				<SearchBar onSubmit={this.loadResponse}/>
-				{this.loading("Searching...")}
-				{this.renderContent()}
-			</div>
-		);
-	}
+    render() {
+        return (
+            <div className="pusher">
+                <div className="ui vertical stripe masthead center aligned segment">
+                    <div className="ui container">
+                        <h1 className="ui header">Marvel Comic Viewer</h1>
+                        <SearchBar onSubmit={this.loadResponse} />
+                    </div>
+                </div>
+                <div className="ui vertical stripe segment">
+                    <div className="ui container">
+                        {this.renderContent()}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
 }
 
 export default App;
