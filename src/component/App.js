@@ -1,9 +1,10 @@
 import React from 'react';
 import SearchBar from './SearchBar';
-import ImageGrid from './ImageGrid';
+// import ImageGrid from './ImageGrid';
 import marvel from '../api/marvel';
-import ReactPaginate from 'react-paginate';
-import Loader from './Loader';
+// import ReactPaginate from 'react-paginate';
+// import Loader from './Loader';
+import Segment from './Segment';
 import '../component/reactPaginate.css';
 
 // q: query, list: an array type
@@ -39,11 +40,11 @@ function filterList(q, list) {
 class App extends React.Component {
     state = {
         loading: false,
-        cache: [],	// to store all results
         series: [],
         characters: [],
         creators: [],
         events: [],        
+        comics: [],
         term: '',
         pages: 0, 	// total of pages for paginator
         limit: 20,	// shows how many results per page
@@ -82,8 +83,7 @@ class App extends React.Component {
                 titleStartsWith: term
             }
         })
-        if (series !== undefined)
-            this.setState({ series });
+        return series.data.data.results;
     }
 
     async cacheCharacters(term) {
@@ -92,18 +92,16 @@ class App extends React.Component {
                 nameStartsWith: term
             }
         });
-        if (characters !== undefined)
-            this.setState({ characters });
+        return characters.data.data.results;
     }
 
     async cacheCreators(term) {
-        const series = await marvel.get('/creators', {
+        const creators = await marvel.get('/creators', {
             params: {
                 nameStartsWith: term
             }
         })
-        if (creators !== undefined)
-            this.setState({ creators });
+        return creators.data.data.results;
     }
 
     async cacheEvents(term) {
@@ -112,48 +110,40 @@ class App extends React.Component {
                 nameStartsWith: term
             }
         })
-        if (events !== undefined)
-            this.setState({ events });
     }
 
-    async cacheComics() {
-        console.log("Caching comics!");
-
-        let cache = [];
-        //let callLimit = 100;
-        const all = await marvel.get('/comics');
-        const total = all.data.data.total;
-        //const count = all.data.data.count;  // Marvel API's default number of results
-        console.log('Total results:', total); 
-        cache = all.data.data.results;
-        console.log('cache', cache);
-        // for (let i = count; i < total; i+=100) {
-        //const comics = await marvel.get('/comics', {
-        //    params: {
-        //        offset: count,
-        //        limit: callLimit
-        //    }
-        //});
-        //cache = cache.concat(comics.data.data.results);
-        // }
-        this.setState({ cache });
+    async cacheComics(term) {
+        const comics = await marvel.get('/comics', {
+            params: {
+                titleStartsWith: term
+            }
+        });
     }
 
     // Bugs: searching using keyword will not load the correct batch, and shows total results of cache
     loadResponse = async (form = { term: '' }) => {
         if (form.term !== '') {
-            // first load. If the state cache is empty, load all the comics*
-            if (this.state.cache === undefined || this.state.cache.length === 0) {
-                // await this.cacheComics();
-                await this.cacheCharacters(form.term);
-            }
+            const characters = await this.cacheCharacters(form.term);
+            console.log(characters);
+
+            const series = await this.cacheSeries(form.term);
+            console.log(series);
+
+            const creators = await this.cacheCreators(form.term);
+            console.log(creators);
+
+            this.setState({
+                characters,
+                series,
+                creators
+            })
 
             // console.log('Term: ', form.term);
             // const filter = filterList(form.term, this.state.cache);
             // console.log(filter);
             // this.setState({
             //     filter: filter,
-            //     term: form.term,
+            //     term: form.term, 
             //     pages: Math.ceil(filter.length / this.state.limit)
             // });
         }
@@ -176,14 +166,15 @@ class App extends React.Component {
         });
     }
 
-    //changeLimit = limit => {
-    //    this.setState({ limit });
-    //    console.log(this.state.limit);
-        // this.renderContent();	// re-render with new limit per page
-    //}
-
     renderContent() {
-        //return (
+        const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
+        return (
+            <div>
+                {this.state.characters.length > 0 ? <Segment label='Characters' results = {this.state.characters}/> : null}
+                {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
+                {this.state.creators.length > 0 ? <Segment label='Creators' results = {this.state.creators}/> : null}
+                <span>Nothing to see here.</span>
+            </div>
         //    <div className="ui container">
         //        <h3>{message}</h3>
 
@@ -217,20 +208,17 @@ class App extends React.Component {
 
         // if user has input a search term and the valid results are in the filtered cache
         // TODO: optional segments depending on the results returned
-        if (this.state.term !== '' && this.state.comics.length > 0) {
-            return (
-                <div className="ui vertical stripe segment">
-                    <div className="ui container">
-                        <span className="ui header">{this.state.filter.length} results for {this.state.term}</span>
-                        <div className="ui container">
-                            <ImageGrid title='Comics' results={this.state.filter} />
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-        else
-            return <span>Nothing to see here.</span>;
+        // if (this.state.term !== '' && this.state.comics.length > 0) {
+        //     return (
+        //         <div className="ui vertical stripe segment">
+        //             <div className="ui container">
+        //                 <span className="ui header">{this.state.filter.length} results for {this.state.term}</span>
+        //                 <div className="ui container">
+        //                     <ImageGrid title='Comics' results={this.state.filter} />
+        //                 </div>
+        //             </div>
+        //         </div>
+        );
     }
 
     //loading(message) {

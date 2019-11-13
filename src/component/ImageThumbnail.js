@@ -19,26 +19,21 @@ class ImageThumbnail extends React.Component {
 
     render() {
         const { path, extension } = this.props.thumbnail;
+        const alt = 'Image for ' + this.props.label;
         const src = path + '/portrait_xlarge.' + extension;
-
-        let label;
-        if (this.props.name)
-            label = this.props.name;
-        else if (this.props.title)
-            label = this.props.title;
 
         return (
             <div className="card" style={{ gridRowEnd: `span ${this.state.spans}` }}>
                 <div className="ui centered small image">
                     <img
                         ref={this.imageRef}
-                        alt='temp'
+                        alt={alt}
                         src={src}
                     />
                 </div>
                 <div className="content">
                     <div className='center aligned header'>
-                        <p>{label}</p>
+                        <p>{this.props.label}</p>
                     </div>
                 </div>
             </div>

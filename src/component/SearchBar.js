@@ -22,7 +22,7 @@ class SearchBar extends React.Component {
 					<div className='ui fluid large icon input field'>
 						<input type="text" value={this.state.term} placeholder="Search...."
 							onChange={(e)=>this.setState({term: e.target.value})} />
-  					<i class="search icon"></i>
+  					<i className="search icon"></i>
 					</div>
 				</form>
 			</div>
