@@ -20,11 +20,12 @@ class ImageThumbnail extends React.Component {
     render() {
         const { path, extension } = this.props.thumbnail;
         const alt = 'Image for ' + this.props.label;
-        const src = path + '/portrait_xlarge.' + extension;
+        const src = path + '/portrait_uncanny.' + extension; // returns an image ~300px
 
+        // , gridRowEnd: `span ${this.state.spans}` 
         return (
-            <div className="card" style={{ gridRowEnd: `span ${this.state.spans}` }}>
-                <div className="ui centered small image">
+            <div className="card" style={{ width: '150px' }}>
+                <div className="ui centered image">
                     <img
                         ref={this.imageRef}
                         alt={alt}

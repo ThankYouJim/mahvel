@@ -17,10 +17,8 @@ class ImageGrid extends React.Component {
 		});
 
 		return (
-			<div>
-	      <div className='ui four stackable cards'>
-					{thumbnails}
-				</div>
+      <div className='ui stackable five cards'>
+				{thumbnails}
 			</div>
 		);
 	}

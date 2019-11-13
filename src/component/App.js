@@ -137,15 +137,6 @@ class App extends React.Component {
                 series,
                 creators
             })
-
-            // console.log('Term: ', form.term);
-            // const filter = filterList(form.term, this.state.cache);
-            // console.log(filter);
-            // this.setState({
-            //     filter: filter,
-            //     term: form.term, 
-            //     pages: Math.ceil(filter.length / this.state.limit)
-            // });
         }
 
             // TODO: add for character, creator etc
@@ -173,7 +164,6 @@ class App extends React.Component {
                 {this.state.characters.length > 0 ? <Segment label='Characters' results = {this.state.characters}/> : null}
                 {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
                 {this.state.creators.length > 0 ? <Segment label='Creators' results = {this.state.creators}/> : null}
-                <span>Nothing to see here.</span>
             </div>
         //    <div className="ui container">
         //        <h3>{message}</h3>
@@ -230,14 +220,20 @@ class App extends React.Component {
     // TODO: add api, github repo, linked in and contact as banner
     render() {
         return (
-            <div className='pusher'>
-                <div className='ui inverted vertical masthead center aligned segment'>
-                    <div className='ui text container'>
-                        <h1 className='ui inverted header'>Marvel Comic Viewer</h1>
-                        <SearchBar onSubmit={this.loadResponse} />
+            <div>
+                <div className='pusher'>
+                    <div className='ui inverted vertical masthead center aligned segment'>
+                        <div className="ui inverted compact labeled menu">
+                            <a className="item" href="https://www.linkedin.com/in/jo-chong-a513963a/"><i className="icon link linkedin large"></i>LinkedIn</a>
+                            <a className="item" href="https://github.com/ThankYouJim/mahvel"><i className="icon link github large"></i>Source</a>
+                        </div>
+                        <div className='ui text container'>
+                            <h1 className='ui inverted header'><span className='marvel-text'>Marvel</span> Comic Viewer</h1>
+                            <SearchBar onSubmit={this.loadResponse} />
+                        </div>
                     </div>
+                    {this.renderContent()}
                 </div>
-                {this.renderContent()}
             </div>
         );
     }
