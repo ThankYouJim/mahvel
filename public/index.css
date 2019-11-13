@@ -2,6 +2,12 @@ body {
 	font-family: "Roboto Bold","Trebuchet MS",Helvetica,Arial,sans-serif !important;
 }
 
+footer {
+	position: fixed;
+	bottom: 0; 
+	width:100%;
+}
+
 .marvel-text {
 	letter-spacing: -2px;
 	font-family: 'Bebas Neue', cursive;
