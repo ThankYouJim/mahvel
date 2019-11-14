@@ -1,4 +1,4 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses [Marvel API](https://developer.marvel.com)
 
 ## Hosting
 [AWS Amplify Site](https://master.d5pk1sdgs9icp.amplifyapp.com/)
