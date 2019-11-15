@@ -5,32 +5,33 @@ import marvel from '../api/marvel';
 // import ReactPaginate from 'react-paginate';
 // import Loader from './Loader';
 import Segment from './Segment';
+import '../component/index.css';
 import '../component/reactPaginate.css';
 
 // q: query, list: an array type
 // credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
 function filterList(q, list) {
     function escapeRegExp(s) {
-        return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+        return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
     }
     const words = q
         .split(/\s+/g)
         .map(s => s.trim())
         .filter(s => !!s);
-    const hasTrailingSpace = q.endsWith(" ");
+    const hasTrailingSpace = q.endsWith(' ');
     const searchRegex = new RegExp(
         words
             .map((word, i) => {
                 if (i + 1 === words.length && !hasTrailingSpace) {
-                    // The last word - ok with the word being "startswith"-like
+                    // The last word - ok with the word being 'startswith'-like
                     return `(?=.*\\b${escapeRegExp(word)})`;
                 } else {
                     // Not the last word - expect the whole word exactly
                     return `(?=.*\\b${escapeRegExp(word)}\\b)`;
                 }
             })
-            .join("") + ".+",
-        "gi"
+            .join('') + '.+',
+        'gi'
     );
     return list.filter(item => {
         return searchRegex.test(item.title);
@@ -145,7 +146,7 @@ class App extends React.Component {
             // deal with results here
             // 	}))
             // 	.catch(error => console.log(error))
-            // 	.then(() => console.log("Search done!"));
+            // 	.then(() => console.log('Search done!'));
     }
 
     handlePageClick = data => {
@@ -165,20 +166,20 @@ class App extends React.Component {
                 {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
                 {this.state.creators.length > 0 ? <Segment label='Creators' results = {this.state.creators}/> : null}
             </div>
-        //    <div className="ui container">
+        //    <div className='ui container'>
         //        <h3>{message}</h3>
 
-        //        <div className="showN">
+        //        <div className='showN'>
         //            <label>Show: </label>
-        //            <div className="ui buttons mini">
-        //                <button className="ui button" onClick={e => this.changeLimit(20)}>20</button>
-        //                <button className="ui button" onClick={e => this.changeLimit(50)}>50</button>
-        //                <button className="ui button" onClick={e => this.changeLimit(100)}>100</button>
+        //            <div className='ui buttons mini'>
+        //                <button className='ui button' onClick={e => this.changeLimit(20)}>20</button>
+        //                <button className='ui button' onClick={e => this.changeLimit(50)}>50</button>
+        //                <button className='ui button' onClick={e => this.changeLimit(100)}>100</button>
         //            </div>
         //        </div>
 
         //        <ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
-        //        <div id="react-paginate" className="ui pagination menu">
+        //        <div id='react-paginate' className='ui pagination menu'>
         //            <ReactPaginate
         //                previousLabel={'previous'}
         //                nextLabel={'next'}
@@ -200,10 +201,10 @@ class App extends React.Component {
         // TODO: optional segments depending on the results returned
         // if (this.state.term !== '' && this.state.comics.length > 0) {
         //     return (
-        //         <div className="ui vertical stripe segment">
-        //             <div className="ui container">
-        //                 <span className="ui header">{this.state.filter.length} results for {this.state.term}</span>
-        //                 <div className="ui container">
+        //         <div className='ui vertical stripe segment'>
+        //             <div className='ui container'>
+        //                 <span className='ui header'>{this.state.filter.length} results for {this.state.term}</span>
+        //                 <div className='ui container'>
         //                     <ImageGrid title='Comics' results={this.state.filter} />
         //                 </div>
         //             </div>
@@ -217,23 +218,51 @@ class App extends React.Component {
     //}
 
     // TODO: add graphics on the side of the masthead
-    // TODO: add api, github repo, linked in and contact as banner
     render() {
         return (
-            <div>
-                <div className='pusher'>
-                    <div className='ui inverted vertical masthead center aligned segment'>
-                        <div className="ui inverted compact labeled menu">
-                            <a className="item" href="https://www.linkedin.com/in/jo-chong-a513963a/"><i className="icon link linkedin large"></i>LinkedIn</a>
-                            <a className="item" href="https://github.com/ThankYouJim/mahvel"><i className="icon link github large"></i>Source</a>
-                        </div>
-                        <div className='ui text container'>
-                            <h1 className='ui inverted header'><span className='marvel-text'>Marvel</span> Comic Viewer</h1>
-                            <SearchBar onSubmit={this.loadResponse} />
+            /*main warapper*/
+            <div className='pusher'>
+                {/* The head of the page. Bug: It's not reading masthead so it's squashed */}
+                <div className='ui inverted vertical masthead center aligned segment banner'>
+                    {/* menu */}
+                    <div className='ui container'>
+                        <div className='ui inverted compact labeled menu'>
+                            <a className='item' href='https://www.linkedin.com/in/jo-chong-a513963a/'><i className='icon link linkedin large'></i>LinkedIn</a>
+                            <a className='item' href='https://github.com/ThankYouJim/mahvel'><i className='icon link github large'></i>Source</a>
                         </div>
                     </div>
+                    {/* Texts and searchbar */}
+                    <div className='ui text container'>
+                        <h1 className='ui inverted header'>
+                            <span className='marvel-text'>Marvel</span> Comic Viewer
+                        </h1>
+                        <SearchBar onSubmit={this.loadResponse} />
+                    </div>
+                </div>
+
+                <div className='ui accordion'>
                     {this.renderContent()}
                 </div>
+  
+                {/* Footer with links */}
+                <footer className='ui footer inverted vertical center aligned segment'>
+                    <div class='ui container'>
+                      <div class='ui inverted divided grid'>
+                        <div class='two column row'>
+                          <div class='column'>
+                            <h4 class='ui inverted header'>Made using <a href='https://developer.marvel.com/'>Marvel API</a></h4>
+                          </div>
+                          <div class='column'>
+                            <h4 class='ui inverted header'>Contact Me</h4>
+                            <div class='ui inverted link list' role='list'>
+                              <a class='item' role='listitem' herf='https://www.linkedin.com/in/jo-chong-a513963a/'>LinkedIn</a>
+                              <a class='item' role='listitem' herf='https://github.com/ThankYouJim/'>Github</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </footer>
             </div>
         );
     }

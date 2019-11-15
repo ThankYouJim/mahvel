@@ -5,12 +5,14 @@ class Segment extends React.Component {
 
 	render() {
 		return (
-      <div className="ui vertical stripe segment">
-          <div className="ui container">
-              <h3 className="ui header">{this.props.label}</h3>
-              <div className="ui container">
-                  <ImageGrid results={this.props.results} />
-              </div>
+      <div className='ui vertical stripe segment'>
+          <div className='ui container'>
+                <h2 className='ui header active title'>
+                  {this.props.label}
+                </h2>
+                <div className='active content'>
+                    <ImageGrid results={this.props.results} />
+                </div>
           </div>
       </div>
     );	

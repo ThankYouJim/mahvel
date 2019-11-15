@@ -28,38 +28,33 @@
     <link rel="stylesheet" href="index.css">
     <title>Marvel Comic Viewer</title>
   </head>
+  
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyCHwArQHllODnHjNZpWSBMnNXE-OmB2Yps",
+        authDomain: "fir-34f94.firebaseapp.com",
+        databaseURL: "https://fir-34f94.firebaseio.com",
+        projectId: "fir-34f94",
+        storageBucket: "fir-34f94.appspot.com",
+        messagingSenderId: "49863357976",
+        appId: "1:49863357976:web:ab0a7ef6cc9855beab756d",
+        measurementId: "G-8XYBMRHM80"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+    </script>
   </body>
-  <footer>
-    <div class="ui inverted vertical center aligned segment">
-      <div class="ui container">
-        <div class="ui inverted divided grid">
-          <div class="two column row">
-            <div class="column">
-              <h4 class="ui inverted header">Made using <a href="https://developer.marvel.com/">Marvel API</a></h4>
-            </div>
-            <div class="column">
-              <h4 class="ui inverted header">Contact Me</h4>
-              <div class="ui inverted link list" role="list">
-                <a class="item" role="listitem" herf="https://www.linkedin.com/in/jo-chong-a513963a/">LinkedIn</a>
-                <a class="item" role="listitem" herf="https://github.com/ThankYouJim/">Github</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
 </html>
