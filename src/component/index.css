@@ -9,8 +9,12 @@ body {
 	/*min-height: 100%;*/
 }
 
+.mastpad {
+	padding-top: 5rem;
+}
+
 .masthead.segment {
-	min-height: 300px;
+	min-height: 20rem;
 }
 
 .marvel-text {
@@ -23,7 +27,7 @@ body {
 
 .banner {
   background-image: url('../img/Marvel_Universe.png'); /* fallback */
-  background-image: url('../img/Marvel_Universe.png'), linear-gradient(#eb01a5, #d13531) !important; /* W3C */
+  background-image: url('../img/Marvel_Universe.png'), linear-gradient(#000000, #d13531) !important; /* W3C */
 }
 
 .accordion {

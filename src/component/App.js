@@ -232,7 +232,7 @@ class App extends React.Component {
                         </div>
                     </div>
                     {/* Texts and searchbar */}
-                    <div className='ui text container'>
+                    <div className='ui text container mastpad'>
                         <h1 className='ui inverted header'>
                             <span className='marvel-text'>Marvel</span> Comic Viewer
                         </h1>
