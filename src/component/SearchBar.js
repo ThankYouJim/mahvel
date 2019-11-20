@@ -2,9 +2,7 @@ import React from 'react';
 
 class SearchBar extends React.Component {
 	state = { 
-		term: '',
-		// year1: 1900,
-		// year2: 2019,
+		term: ''
 	 };
 
 	onFormSubmit = e => {

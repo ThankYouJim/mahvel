@@ -1,12 +1,11 @@
 import React from 'react';
+import axios from 'axios';
 import SearchBar from './SearchBar';
 // import ImageGrid from './ImageGrid';
 import marvel from '../api/marvel';
-// import ReactPaginate from 'react-paginate';
-// import Loader from './Loader';
+import Loader from './Loader';
 import Segment from './Segment';
-import '../component/index.css';
-import '../component/reactPaginate.css';
+
 
 // q: query, list: an array type
 // credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
@@ -41,6 +40,7 @@ function filterList(q, list) {
 class App extends React.Component {
     state = {
         loading: false,
+        hasContent: false,
         series: [],
         characters: [],
         creators: [],
@@ -77,145 +77,90 @@ class App extends React.Component {
     .count - totla number of result of this call
     .results - list of characters
     */
-
-    async cacheSeries(term) {
-        const series = await marvel.get('/series', {
-            params: {
-                titleStartsWith: term
-            }
-        })
-        return series.data.data.results;
-    }
-
-    async cacheCharacters(term) {
-        const characters = await marvel.get('/characters', {
-            params: {
-                nameStartsWith: term
-            }
-        });
-        return characters.data.data.results;
-    }
-
-    async cacheCreators(term) {
-        const creators = await marvel.get('/creators', {
-            params: {
-                nameStartsWith: term
-            }
-        })
-        return creators.data.data.results;
-    }
-
-    async cacheEvents(term) {
-        const events = await marvel.get('/events', {
-            params: {
-                nameStartsWith: term
-            }
-        })
-    }
-
-    async cacheComics(term) {
-        const comics = await marvel.get('/comics', {
-            params: {
-                titleStartsWith: term
-            }
-        });
-    }
-
-    // Bugs: searching using keyword will not load the correct batch, and shows total results of cache
     loadResponse = async (form = { term: '' }) => {
         if (form.term !== '') {
-            const characters = await this.cacheCharacters(form.term);
-            console.log(characters);
+            console.log('Searching', form.term);
+            const series = marvel.get('/series', {
+                params: {
+                    titleStartsWith: form.term
+                }
+            });
+            const characters = marvel.get('/characters', {
+                params: {
+                    nameStartsWith: form.term
+                }
+            });
+            const creators = marvel.get('/creators', {
+                params: {
+                    nameStartsWith: form.term
+                }
+            });
+            const events = marvel.get('/events', {
+                params: {
+                    nameStartsWith: form.term
+                }
+            });
+            // const comics = await marvel.get('/comics', {
+            //     params: {
+            //         titleStartsWith: term
+            //     }
+            // });
 
-            const series = await this.cacheSeries(form.term);
-            console.log(series);
+            this.setState({ loading: true }, () => {
+                axios.all([series, characters, creators, events])
+                .then(axios.spread((...responses) => {
+                    const series = responses[0].data.data;
+                    const characters = responses[1].data.data;
+                    const creators = responses[2].data.data;
+                    const events = responses[3].data.data;
+                    console.log(series);
+                    console.log(characters);
+                    console.log(creators);
+                    console.log(series);
+                    // console.log(comics);
 
-            const creators = await this.cacheCreators(form.term);
-            console.log(creators);
-
-            this.setState({
-                characters,
-                series,
-                creators
-            })
+                    this.setState({
+                        loading: false,
+                        hasContent: (series.total > 0 || characters.total > 0 || creators.total > 0 || events.total > 0 ? true : false),
+                        series,
+                        characters,
+                        creators,
+                        events
+                    });
+                }))
+                .catch(e => {
+                    console.log('Error:', e);
+                })
+                .then(()=>{
+                    if (!this.state.hasContent)
+                        console.log('No results');
+                });
+            });
         }
 
-            // TODO: add for character, creator etc
-            // await axios.all(	cacheComics()])
-            // .then(axios.spread(comics => {
-            // deal with results here
-            // 	}))
-            // 	.catch(error => console.log(error))
-            // 	.then(() => console.log('Search done!'));
     }
 
-    handlePageClick = data => {
-        let selected = data.selected;
-        let offset = Math.ceil(selected * this.state.limit);
+    // handlePageClick = data => {
+    //     let selected = data.selected;
+    //     let offset = Math.ceil(selected * this.state.limit);
 
-        this.setState({ offset }, () => {
-            // this.loadResponse();
-        });
-    }
+    //     this.setState({ offset }, () => {
+    //         // this.loadResponse();
+    //     });
+    // }
 
     renderContent() {
-        const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
+        // const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
         return (
-            <div>
+            <div className='ui container'>
+                {this.state.loading ? <Loader message={this.state.term} /> : null}
                 {this.state.characters.length > 0 ? <Segment label='Characters' results = {this.state.characters}/> : null}
                 {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
+                {this.state.events.length > 0 ? <Segment label='Events' results = {this.state.events}/> : null}
                 {this.state.creators.length > 0 ? <Segment label='Creators' results = {this.state.creators}/> : null}
             </div>
-        //    <div className='ui container'>
-        //        <h3>{message}</h3>
-
-        //        <div className='showN'>
-        //            <label>Show: </label>
-        //            <div className='ui buttons mini'>
-        //                <button className='ui button' onClick={e => this.changeLimit(20)}>20</button>
-        //                <button className='ui button' onClick={e => this.changeLimit(50)}>50</button>
-        //                <button className='ui button' onClick={e => this.changeLimit(100)}>100</button>
-        //            </div>
-        //        </div>
-
-        //        <ImageGrid results={buffer.slice(this.state.offset, this.state.limit)} />
-        //        <div id='react-paginate' className='ui pagination menu'>
-        //            <ReactPaginate
-        //                previousLabel={'previous'}
-        //                nextLabel={'next'}
-        //                breakLabel={'...'}
-        //                breakClassName={'break-me'}
-        //                pageCount={this.state.pages}
-        //                marginPagesDisplayed={2}
-        //                pageRangeDisplayed={5}
-        //                onPageChange={this.handlePageClick}
-        //                containerClassName={'pagination'}
-        //                subContainerClassName={'pages pagination'}
-        //                activeClassName={'active'}
-        //            />
-        //        </div>
-        //    </div>
-        //);
-
-        // if user has input a search term and the valid results are in the filtered cache
-        // TODO: optional segments depending on the results returned
-        // if (this.state.term !== '' && this.state.comics.length > 0) {
-        //     return (
-        //         <div className='ui vertical stripe segment'>
-        //             <div className='ui container'>
-        //                 <span className='ui header'>{this.state.filter.length} results for {this.state.term}</span>
-        //                 <div className='ui container'>
-        //                     <ImageGrid title='Comics' results={this.state.filter} />
-        //                 </div>
-        //             </div>
-        //         </div>
         );
     }
-
-    //loading(message) {
-    //    if (this.state.loading)
-    //        return <Loader message={message} />;
-    //}
 
     // TODO: add graphics on the side of the masthead
     render() {
@@ -236,27 +181,26 @@ class App extends React.Component {
                         <h1 className='ui inverted header'>
                             <span className='marvel-text'>Marvel</span> Comic Viewer
                         </h1>
-                        <SearchBar onSubmit={this.loadResponse} />
+                        <SearchBar onSubmit={this.loadResponse} onClick={this.loading} />
                     </div>
                 </div>
 
-                <div className='ui accordion'>
-                    {this.renderContent()}
-                </div>
+                {/* Main Content  */}
+                {this.renderContent()}
   
                 {/* Footer with links */}
                 <footer className='ui footer inverted vertical center aligned segment'>
-                    <div class='ui container'>
-                      <div class='ui inverted divided grid'>
-                        <div class='two column row'>
-                          <div class='column'>
-                            <h4 class='ui inverted header'>Made using <a href='https://developer.marvel.com/'>Marvel API</a></h4>
+                    <div className='ui container'>
+                      <div className='ui inverted divided grid'>
+                        <div className='two column row'>
+                          <div className='column'>
+                            <h4 className='ui inverted header'>Made using <a href='https://developer.marvel.com/'>Marvel API</a></h4>
                           </div>
-                          <div class='column'>
-                            <h4 class='ui inverted header'>Contact Me</h4>
-                            <div class='ui inverted link list' role='list'>
-                              <a class='item' role='listitem' herf='https://www.linkedin.com/in/jo-chong-a513963a/'>LinkedIn</a>
-                              <a class='item' role='listitem' herf='https://github.com/ThankYouJim/'>Github</a>
+                          <div className='column'>
+                            <h4 className='ui inverted header'>Contact Me</h4>
+                            <div className='ui inverted link list' role='list'>
+                              <a className='item' role='listitem' herf='https://www.linkedin.com/in/jo-chong-a513963a'>LinkedIn</a>
+                              <a className='item' role='listitem' herf='https://github.com/ThankYouJim'>Github</a>
                             </div>
                           </div>
                         </div>
