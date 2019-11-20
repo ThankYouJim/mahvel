@@ -6,6 +6,8 @@ import marvel from '../api/marvel';
 import Loader from './Loader';
 import Segment from './Segment';
 
+import { Accordion, Icon } from 'semantic-ui-react';
+
 
 // q: query, list: an array type
 // credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
@@ -41,16 +43,18 @@ class App extends React.Component {
     state = {
         loading: false,
         hasContent: false,
+        cache: [],
         series: [],
         characters: [],
         creators: [],
         events: [],        
         comics: [],
         term: '',
-        pages: 0, 	// total of pages for paginator
-        limit: 20,	// shows how many results per page
-        offset: 0,	// shows different set of results for paginator
+        // pages: 0, 	// total of pages for paginator
+        // limit: 20,	// shows how many results per page
+        // offset: 0,	// shows different set of results for paginator
         // total: 0		// the total number of result
+        activeIndex: 0
     };
 
     // async componentDidMount() {
@@ -149,11 +153,44 @@ class App extends React.Component {
     //     });
     // }
 
+    handleClick = (e, titleProps) => {
+        const { index } = titleProps;
+        const { activeIndex } = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
+
+        this.setState({ activeIndex: newIndex });
+    }
+
     renderContent() {
         // const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
+        
+        const { activeIndex } = this.state
+        
         return (
             <div className='ui container'>
                 {this.state.loading ? <Loader message={this.state.term} /> : null}
+                {/*
+                <Accordion>
+                    <div>
+                    <Accordion.Title
+                      active={activeIndex === 0}
+                      index={0}
+                      onClick={this.handleClick}
+                    >
+                      <Icon name='dropdown' />
+                      What is a dog?
+                    </Accordion.Title>
+                    <Accordion.Content active={activeIndex === 0}>
+                      <p>
+                        A dog is a type of domesticated animal. Known for its loyalty and
+                        faithfulness, it can be found as a welcome guest in many households
+                        across the world.
+                      </p>
+                    </Accordion.Content>
+                    </div>
+                <Segment />
+                </Accordion>
+                */}
                 {this.state.characters.length > 0 ? <Segment label='Characters' results = {this.state.characters}/> : null}
                 {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
                 {this.state.events.length > 0 ? <Segment label='Events' results = {this.state.events}/> : null}
@@ -181,7 +218,7 @@ class App extends React.Component {
                         <h1 className='ui inverted header'>
                             <span className='marvel-text'>Marvel</span> Comic Viewer
                         </h1>
-                        <SearchBar onSubmit={this.loadResponse} onClick={this.loading} />
+                        <SearchBar onSubmit={this.loadResponse} />
                     </div>
                 </div>
 

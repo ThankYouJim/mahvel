@@ -10,14 +10,16 @@ class ImageGrid extends React.Component {
 			if (result.name !== undefined)
 				label = result.name;
 			else if (result.title !== undefined)
-				label = result.title
+				label = result.title;
 			else if (result.fullName !== undefined)
-				label = result.fullName
+				label = result.fullName;
+			else 
+				label = result.label;
 			return <ImageThumbnail key={result.id} thumbnail={result.thumbnail} label={label}/>
 		});
 
 		return (
-      <div className='ui stackable five cards'>
+      <div className='ui stackable five cards active content'>
 				{thumbnails}
 			</div>
 		);

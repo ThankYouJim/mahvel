@@ -6,16 +6,16 @@ class ImageThumbnail extends React.Component {
         super(props);
 
         // other css helper setters
-        this.state = { spans: 0 }
+        // this.state = { spans: 0 }
 
         this.imageRef = React.createRef();
     }
 
-    setSpans = () => {
-        const height = this.imageRef.current.clientHeight;
-        const spans = Math.ceil(height / 10);
-        this.setState({ spans });
-    }
+    // setSpans = () => {
+    //     const height = this.imageRef.current.clientHeight;
+    //     const spans = Math.ceil(height / 10);
+    //     this.setState({ spans });
+    // }
 
     render() {
         const { path, extension } = this.props.thumbnail;
