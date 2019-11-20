@@ -30,7 +30,7 @@ body {
   background-image: url('../img/Marvel_Universe.png'), linear-gradient(#000000, #d13531) !important; /* W3C */
 }
 
-.accordion {
+.content {
 	padding-bottom:7rem;
 }
 

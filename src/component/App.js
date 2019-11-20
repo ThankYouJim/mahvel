@@ -1,12 +1,11 @@
 import React from 'react';
 import axios from 'axios';
-import SearchBar from './SearchBar';
-// import ImageGrid from './ImageGrid';
 import marvel from '../api/marvel';
+import SearchBar from './SearchBar';
 import Loader from './Loader';
 import Segment from './Segment';
 
-import { Accordion, Icon } from 'semantic-ui-react';
+// import { Accordion, Icon } from 'semantic-ui-react';
 
 
 // q: query, list: an array type
@@ -54,7 +53,7 @@ class App extends React.Component {
         // limit: 20,	// shows how many results per page
         // offset: 0,	// shows different set of results for paginator
         // total: 0		// the total number of result
-        activeIndex: 0
+        // activeIndex: 0
     };
 
     // async componentDidMount() {
@@ -110,8 +109,10 @@ class App extends React.Component {
             //     }
             // });
 
+            // .results of series, characters, events has descriptions
+
             this.setState({ loading: true }, () => {
-                axios.all([series, characters, creators, events])
+                axios.all([series, characters, creators, events], {timeout: 10})
                 .then(axios.spread((...responses) => {
                     const series = responses[0].data.data;
                     const characters = responses[1].data.data;
@@ -163,11 +164,10 @@ class App extends React.Component {
 
     renderContent() {
         // const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
-        
-        const { activeIndex } = this.state
+        // const { activeIndex } = this.state
         
         return (
-            <div className='ui container'>
+            <div className='ui container content'>
                 {this.state.loading ? <Loader message={this.state.term} /> : null}
                 {/*
                 <Accordion>
@@ -188,13 +188,13 @@ class App extends React.Component {
                       </p>
                     </Accordion.Content>
                     </div>
-                <Segment />
                 </Accordion>
                 */}
-                {this.state.characters.length > 0 ? <Segment label='Characters' results = {this.state.characters}/> : null}
-                {this.state.series.length > 0 ? <Segment label='Series' results = {this.state.series}/> : null}
-                {this.state.events.length > 0 ? <Segment label='Events' results = {this.state.events}/> : null}
-                {this.state.creators.length > 0 ? <Segment label='Creators' results = {this.state.creators}/> : null}
+                <Segment />
+                {this.state.characters.results ? <Segment label='Characters' results = {this.state.characters.results}/> : null}
+                {this.state.series.results ? <Segment label='Series' results = {this.state.series.results}/> : null}
+                {this.state.events.results? <Segment label='Events' results = {this.state.events.results}/> : null}
+                {this.state.creators.results ? <Segment label='Creators' results = {this.state.creators.results}/> : null}
             </div>
         );
     }
