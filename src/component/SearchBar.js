@@ -1,39 +1,48 @@
-import React from 'react';
-import { Dropdown } from 'semantic-ui-react';
+import React, {useState} from 'react';
+import { Dropdown, Button, Icon } from 'semantic-ui-react';
 
-class SearchBar extends React.Component {
-	state = { 
-		term: ''
-	 };
+const SearchBar = (props) => {
+	const [term, setTerm] = useState('');
+	const [character, toggleChar] = useState(true);
+	const [series, toggleSeries] = useState(true);
+	const [events, toggleEvent] = useState(true);
+	const [creator, toggleCreator] = useState(true);
 
-	onFormSubmit = e => {
+	const onFormSubmit = e => {
 		e.preventDefault();
 
-		this.props.onSubmit({
-			term: this.state.term
+		props.onSubmit({
+			term
 		});
 	}
 
-	render() {
-		const testOptions = [
-			'characters',
-			'series',
-			'events',
-			'creators',
-			'comics'
-		]
-		return (
-			<div>
-				<form className='ui inverted form' onSubmit={this.onFormSubmit}>
-					<div className='ui fluid large icon input field'>
-  					<i className="search icon"></i>
-						<input type="text" value={this.state.term} placeholder="Search...."
-							onChange={(e)=>this.setState({term: e.target.value})} />
-					</div>
-				</form>
-			</div>
-		);
+	const toggle = e => {
+		console.log(e);
 	}
+
+	const options = [
+		'characters',
+		'series',
+		'events',
+		'creators',
+		'comics'
+	]
+	return (
+		<div>
+			<form className='ui inverted form' onSubmit={onFormSubmit}>
+				<div className='ui fluid large icon input field'>
+					<i className="search icon"></i>
+					<input type="text" value={term} placeholder="Search...."
+						onChange={e=>setTerm(e.target.value)} />
+				</div>
+					<div>{
+						options.map(item => {
+							<Button toggle onClick={toggle} name={item}><Icon name='close'/>{item}</Button>
+						})
+					}</div>
+			</form>
+		</div>
+	);
 }
 
 export default SearchBar;

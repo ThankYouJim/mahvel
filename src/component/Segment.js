@@ -12,7 +12,7 @@ class Segment extends React.Component {
 
       <div className='ui vertical stripe segment'>
         <div className='ui container'>        
-          <h2 className='ui header fluid active title'>
+          <h2 className='ui header fluid'>
             {this.props.label} <Icon name='angle down' className="" />
           </h2>
           <ImageGrid results={this.props.results} />
