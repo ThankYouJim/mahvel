@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import marvel from '../api/marvel';
+import MenuBar from './MenuBar';
 import SearchBar from './SearchBar';
 import Loader from './Loader';
 import Segment from './Segment';
@@ -21,16 +22,16 @@ function filterList(q, list) {
     const hasTrailingSpace = q.endsWith(' ');
     const searchRegex = new RegExp(
         words
-            .map((word, i) => {
-                if (i + 1 === words.length && !hasTrailingSpace) {
-                    // The last word - ok with the word being 'startswith'-like
-                    return `(?=.*\\b${escapeRegExp(word)})`;
-                } else {
-                    // Not the last word - expect the whole word exactly
-                    return `(?=.*\\b${escapeRegExp(word)}\\b)`;
-                }
-            })
-            .join('') + '.+',
+        .map((word, i) => {
+            if (i + 1 === words.length && !hasTrailingSpace) {
+                // The last word - ok with the word being 'startswith'-like
+                return `(?=.*\\b${escapeRegExp(word)})`;
+            } else {
+                // Not the last word - expect the whole word exactly
+                return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+            }
+        })
+        .join('') + '.+',
         'gi'
     );
     return list.filter(item => {
@@ -46,26 +47,26 @@ class App extends React.Component {
         series: [],
         characters: [],
         creators: [],
-        events: [],        
+        events: [],
         comics: [],
         term: '',
-        // pages: 0, 	// total of pages for paginator
-        // limit: 20,	// shows how many results per page
-        // offset: 0,	// shows different set of results for paginator
-        // total: 0		// the total number of result
+        // pages: 0,    // total of pages for paginator
+        // limit: 20,   // shows how many results per page
+        // offset: 0,   // shows different set of results for paginator
+        // total: 0     // the total number of result
         // activeIndex: 0
     };
 
     // async componentDidMount() {
-    // 	this.setState({ loading: true });
+    //  this.setState({ loading: true });
     //   // const response = await fetch(`https://api.coinmarketcap.com/v1/ticker/?limit=10`);
     //   // const json = await response.json();
     //   // this.setState({ data: json });
-    //   const comics =	cacheComics();
+    //   const comics = cacheComics();
     //   this.setState({
-    //   	loading: true,
-    //   	cache: comics.results,
-    //   	pages: Math.ceil(comics.total/comics.limit),
+    //      loading: true,
+    //      cache: comics.results,
+    //      pages: Math.ceil(comics.total/comics.limit),
     //   })
     // }
 
@@ -112,34 +113,37 @@ class App extends React.Component {
             // .results of series, characters, events has descriptions
 
             this.setState({ loading: true }, () => {
-                axios.all([series, characters, creators, events], {timeout: 10})
-                .then(axios.spread((...responses) => {
-                    const series = responses[0].data.data;
-                    const characters = responses[1].data.data;
-                    const creators = responses[2].data.data;
-                    const events = responses[3].data.data;
-                    console.log(series);
-                    console.log(characters);
-                    console.log(creators);
-                    console.log(series);
-                    // console.log(comics);
+                axios.all([series, characters, creators, events], { timeout: 5 })
+                    .then(axios.spread((...responses) => {
+                        const series = responses[0].data.data;
+                        const characters = responses[1].data.data;
+                        const creators = responses[2].data.data;
+                        const events = responses[3].data.data;
+                        console.log(series);
+                        console.log(characters);
+                        console.log(creators);
+                        console.log(series);
+                        // console.log(comics);
 
-                    this.setState({
-                        loading: false,
-                        hasContent: (series.total > 0 || characters.total > 0 || creators.total > 0 || events.total > 0 ? true : false),
-                        series,
-                        characters,
-                        creators,
-                        events
+                        this.setState({
+                            loading: false,
+                            hasContent: (series.total > 0 || characters.total > 0 || creators.total > 0 || events.total > 0 ? true : false),
+                            series,
+                            characters,
+                            creators,
+                            events
+                        });
+                    }))
+                    .catch(e => {
+                        if (e.code === 'ECONNABORTED')
+                            console.log('Search timeout. Try again?');
+                        else
+                            console.log(e);
+                    })
+                    .then(() => {
+                        if (!this.state.hasContent)
+                            console.log('No results');
                     });
-                }))
-                .catch(e => {
-                    console.log('Error:', e);
-                })
-                .then(()=>{
-                    if (!this.state.hasContent)
-                        console.log('No results');
-                });
             });
         }
 
@@ -154,18 +158,18 @@ class App extends React.Component {
     //     });
     // }
 
-    handleClick = (e, titleProps) => {
-        const { index } = titleProps;
-        const { activeIndex } = this.state;
-        const newIndex = activeIndex === index ? -1 : index;
+    // handleClick = (e, titleProps) => {
+    //     const { index } = titleProps;
+    //     const { activeIndex } = this.state;
+    //     const newIndex = activeIndex === index ? -1 : index;
 
-        this.setState({ activeIndex: newIndex });
-    }
+    //     this.setState({ activeIndex: newIndex });
+    // }
 
     renderContent() {
         // const test = [{id:1, thumbnail: {path:'abc', extension:'.jpg'}, label:'A-man'}];
         // const { activeIndex } = this.state
-        
+
         return (
             <div className='ui container content'>
                 {this.state.loading ? <Loader message={this.state.term} /> : null}
@@ -202,18 +206,9 @@ class App extends React.Component {
     // TODO: add graphics on the side of the masthead
     render() {
         return (
-            /*main warapper*/
             <div className='pusher'>
-                {/* The head of the page. Bug: It's not reading masthead so it's squashed */}
                 <div className='ui inverted vertical masthead center aligned segment banner'>
-                    {/* menu */}
-                    <div className='ui container'>
-                        <div className='ui inverted compact labeled menu'>
-                            <a className='item' href='https://www.linkedin.com/in/jo-chong-a513963a/'><i className='icon link linkedin large'></i>LinkedIn</a>
-                            <a className='item' href='https://github.com/ThankYouJim/mahvel'><i className='icon link github large'></i>Source</a>
-                        </div>
-                    </div>
-                    {/* Texts and searchbar */}
+                    <MenuBar />
                     <div className='ui text container mastpad'>
                         <h1 className='ui inverted header'>
                             <span className='marvel-text'>Marvel</span> Comic Viewer

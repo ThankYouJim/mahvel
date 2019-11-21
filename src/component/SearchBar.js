@@ -1,4 +1,5 @@
 import React from 'react';
+import { Dropdown } from 'semantic-ui-react';
 
 class SearchBar extends React.Component {
 	state = { 
@@ -14,13 +15,20 @@ class SearchBar extends React.Component {
 	}
 
 	render() {
+		const testOptions = [
+			'characters',
+			'series',
+			'events',
+			'creators',
+			'comics'
+		]
 		return (
 			<div>
 				<form className='ui inverted form' onSubmit={this.onFormSubmit}>
 					<div className='ui fluid large icon input field'>
+  					<i className="search icon"></i>
 						<input type="text" value={this.state.term} placeholder="Search...."
 							onChange={(e)=>this.setState({term: e.target.value})} />
-  					<i className="search icon"></i>
 					</div>
 				</form>
 			</div>
