@@ -1,48 +1,65 @@
-import React, {useState} from 'react';
-import { Dropdown, Button, Icon } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import { Label, Dropdown, Button, Icon } from 'semantic-ui-react';
 
-const SearchBar = (props) => {
-	const [term, setTerm] = useState('');
-	const [character, toggleChar] = useState(true);
-	const [series, toggleSeries] = useState(true);
-	const [events, toggleEvent] = useState(true);
-	const [creator, toggleCreator] = useState(true);
+const TagGroup = props => {
 
-	const onFormSubmit = e => {
-		e.preventDefault();
+  // const options = [
+  //   [toggleCharacters, characters],
+  //   [toggleSeries, series],
+  //   [toggleEvents, events],
+  //   [toggleCreators, creators],
+  //   [toggleComics, comics]
+  // ]
+  const options = [
+    'characters',
+    'series',
+    'events',
+    'creators',
+    'comics'
+  ]
 
-		props.onSubmit({
-			term
-		});
-	}
+	const tags = options.map(item=>{return <Tag value={item}/>})
 
-	const toggle = e => {
-		console.log(e);
-	}
-
-	const options = [
-		'characters',
-		'series',
-		'events',
-		'creators',
-		'comics'
-	]
 	return (
 		<div>
-			<form className='ui inverted form' onSubmit={onFormSubmit}>
-				<div className='ui fluid large icon input field'>
-					<i className="search icon"></i>
-					<input type="text" value={term} placeholder="Search...."
-						onChange={e=>setTerm(e.target.value)} />
-				</div>
-					<div>{
-						options.map(item => {
-							<Button toggle onClick={toggle} name={item}><Icon name='close'/>{item}</Button>
-						})
-					}</div>
-			</form>
+			<label className='ui text'>Search by:</label>
+			{tags}
 		</div>
 	);
+}
+
+const Tag = props => {
+
+	return <Button>{props.value}</Button>
+						// <Button toggle color='red' active={item[0]} onClick={item[0]} name={item[1]}><Icon name='close'/>item[1]</Button>
+}
+
+const SearchBar = (props) => {
+  const [term, setTerm] = useState('');
+
+  const [characters, toggleCharacters] = useState(true);
+  const [series, toggleSeries] = useState(true);
+  const [events, toggleEvents] = useState(true);
+  const [creators, toggleCreators] = useState(true);
+  const [comics, toggleComics] = useState(true);
+
+  const onFormSubmit = e => {
+    e.preventDefault();
+
+    props.onSubmit({ term });
+  }
+  return (
+    <div className='ui'>
+			<form className='ui inverted form' onSubmit={onFormSubmit}>
+				<div className='ui fluid large icon input field'>
+					<i className='search icon'></i>
+					<input type='text' value={term} placeholder='Search....'
+						onChange={e=>setTerm(e.target.value)} />
+				</div>
+				<TagGroup />
+			</form>
+		</div>
+  );
 }
 
 export default SearchBar;

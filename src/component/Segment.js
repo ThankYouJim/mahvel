@@ -1,14 +1,12 @@
 import React from 'react';
 import ImageGrid from './ImageGrid';
-import { Pagination, Accordion, Icon } from 'semantic-ui-react';
-// import ReactPaginate from 'react-paginate';
-// import '../component/reactPaginate.css';
+import { /*Pagination, Accordion,*/ Icon } from 'semantic-ui-react';
 
 class Segment extends React.Component {
 
-	render() {
+  render() {
     // console.log(this.props.results);
-		return (
+    return (
 
       <div className='ui vertical stripe segment'>
         <div className='ui container'>        
@@ -37,22 +35,20 @@ class Segment extends React.Component {
            */}
         </div>
       </div>
-    );	
-	}
+    );
+  }
 }
 
 Segment.defaultProps = {
   label: 'Segment Header',
-  results: [
-    { 
-      label: '???',
-      id: 0,
-      thumbnail: {
-          path: 'https:/via.placeholder.com/150x225',
-          extension: 'jpg'
-      }
+  results: [{
+    label: '???',
+    id: 0,
+    thumbnail: {
+      path: 'https:/via.placeholder.com/150x225',
+      extension: 'jpg'
     }
-  ]
+  }]
 }
 
 export default Segment;

@@ -1,3 +1,5 @@
+// NOT USED
+
 import React from 'react';
 
 class ImageDetail extends React.Component {
