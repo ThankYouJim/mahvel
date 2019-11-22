@@ -57,18 +57,9 @@ class App extends React.Component {
     // activeIndex: 0
   };
 
-  // async componentDidMount() {
-  //  this.setState({ loading: true });
-  //   // const response = await fetch(`https://api.coinmarketcap.com/v1/ticker/?limit=10`);
-  //   // const json = await response.json();
-  //   // this.setState({ data: json });
-  //   const comics = cacheComics();
-  //   this.setState({
-  //      loading: true,
-  //      cache: comics.results,
-  //      pages: Math.ceil(comics.total/comics.limit),
-  //   })
-  // }
+  componentDidMount() {
+    console.log(this.props.children);
+  }
 
   /* Priority of display
    * series - eg. The Avengers Series, Spider-man series, may include reboots
