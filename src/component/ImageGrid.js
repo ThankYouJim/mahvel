@@ -25,4 +25,16 @@ class ImageGrid extends React.Component {
   }
 }
 
+
+ImageGrid.defaultProps = {
+  results: [{
+    label: '???',
+    id: 0,
+    thumbnail: {
+      path: 'https:/via.placeholder.com/150x225',
+      extension: 'jpg'
+    }
+  }]
+}
+
 export default ImageGrid;

@@ -6,9 +6,6 @@ import SearchBar from './SearchBar';
 import Loader from './Loader';
 import Segment from './Segment';
 
-// import { Accordion, Icon } from 'semantic-ui-react';
-
-
 // q: query, list: an array type
 // credit: https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
 // function filterList(q, list) {
@@ -43,22 +40,24 @@ class App extends React.Component {
   state = {
     loading: false,
     hasContent: false,
-    cache: [],
+    /* should be like this
+      cache:['spider': {
+        characters: [{...}],
+        series: [{...}],
+        ...
+      }]
+    */
+    cache: [], 
     series: [],
     characters: [],
     creators: [],
     events: [],
     comics: [],
     term: '',
-    // pages: 0,    // total of pages for paginator
-    // limit: 20,   // shows how many results per page
-    // offset: 0,   // shows different set of results for paginator
-    // total: 0     // the total number of result
     // activeIndex: 0
   };
 
   componentDidMount() {
-    console.log(this.props.children);
   }
 
   /* Priority of display
@@ -72,9 +71,9 @@ class App extends React.Component {
   .count - totla number of result of this call
   .results - list of characters
   */
-  loadResponse = async (form = { term: '' }) => {
+  loadResponse = async (form = { term: '', tags: [] }) => {
     if (form.term !== '') {
-      console.log('Searching', form.term);
+      console.log('Searching', form.term, form.tags);
       const series = marvel.get('/series', {
         params: {
           titleStartsWith: form.term
@@ -104,7 +103,7 @@ class App extends React.Component {
       // .results of series, characters, events has descriptions
 
       this.setState({ loading: true }, () => {
-        axios.all([series, characters, creators, events], { timeout: 5 })
+        axios.all([series, characters, creators, events], { timeout: 5000 })
           .then(axios.spread((...responses) => {
             const series = responses[0].data.data;
             const characters = responses[1].data.data;
@@ -113,7 +112,7 @@ class App extends React.Component {
             console.log(series);
             console.log(characters);
             console.log(creators);
-            console.log(series);
+            console.log(events);
             // console.log(comics);
 
             this.setState({
@@ -133,8 +132,15 @@ class App extends React.Component {
               console.log(e);
           })
           .then(() => {
-            if (!this.state.hasContent)
+            if (!this.state.hasContent) {
               console.log('No results');
+              this.setState({
+                series: [],
+                characters:[],
+                creators: [],
+                events: []
+              })
+            }
           });
       });
     }
@@ -165,33 +171,15 @@ class App extends React.Component {
     return (
       <div className='ui container content'>
         {this.state.loading ? <Loader message={this.state.term} /> : null}
-{/*
-<Accordion>
-    <div>
-    <Accordion.Title
-      active={activeIndex === 0}
-      index={0}
-      onClick={this.handleClick}
-    >
-      <Icon name='dropdown' />
-      What is a dog?
-    </Accordion.Title>
-    <Accordion.Content active={activeIndex === 0}>
-      <p>
-        A dog is a type of domesticated animal. Known for its loyalty and
-        faithfulness, it can be found as a welcome guest in many households
-        across the world.
-      </p>
-    </Accordion.Content>
-    </div>
-</Accordion>
-*/}
-    <Segment />
-    {this.state.characters.results ? <Segment label='Characters' results = {this.state.characters.results}/> : null}
-    {this.state.series.results ? <Segment label='Series' results = {this.state.series.results}/> : null}
-    {this.state.events.results? <Segment label='Events' results = {this.state.events.results}/> : null}
-    {this.state.creators.results ? <Segment label='Creators' results = {this.state.creators.results}/> : null}
-    </div>
+        {this.state.characters.results ?
+          <Segment label='Characters' results = {this.state.characters.results}/> : null}
+        {this.state.series.results ? 
+          <Segment label='Series' results = {this.state.series.results}/> : null}
+        {this.state.events.results ? 
+          <Segment label='Events' results = {this.state.events.results}/> : null}
+        {this.state.creators.results ? 
+          <Segment label='Creators' results = {this.state.creators.results}/> : null}
+      </div>
     );
   }
 
@@ -224,8 +212,8 @@ class App extends React.Component {
               <div className='column'>
                 <h4 className='ui inverted header'>Contact Me</h4>
                 <div className='ui inverted link list' role='list'>
-                  <a className='item' role='listitem' herf='https://www.linkedin.com/in/jo-chong-a513963a'>LinkedIn</a>
-                  <a className='item' role='listitem' herf='https://github.com/ThankYouJim'>Github</a>
+                  <a className='item' role='listitem' href='https://www.linkedin.com/in/jo-chong-a513963a'>LinkedIn</a>
+                  <a className='item' role='listitem' href='https://github.com/ThankYouJim'>Github</a>
                 </div>
               </div>
             </div>

@@ -13,7 +13,13 @@ class Segment extends React.Component {
           <h2 className='ui header fluid'>
             {this.props.label} <Icon name='angle down' className="" />
           </h2>
-          <ImageGrid results={this.props.results} />
+          {
+            this.props.results ?
+              this.props.results.length > 0 ?
+                <ImageGrid results={this.props.results} /> : 
+                <label className='meta'>No results.</label>
+              : null
+          }
 
           {/*
              <ReactPaginate
@@ -39,16 +45,16 @@ class Segment extends React.Component {
   }
 }
 
-Segment.defaultProps = {
-  label: 'Segment Header',
-  results: [{
-    label: '???',
-    id: 0,
-    thumbnail: {
-      path: 'https:/via.placeholder.com/150x225',
-      extension: 'jpg'
-    }
-  }]
-}
+// Segment.defaultProps = {
+//   label: 'Segment Header',
+//   results: [{
+//     label: '???',
+//     id: 0,
+//     thumbnail: {
+//       path: 'https:/via.placeholder.com/150x225',
+//       extension: 'jpg'
+//     }
+//   }]
+// }
 
 export default Segment;
