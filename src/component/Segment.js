@@ -5,7 +5,7 @@ import { /*Pagination, Accordion,*/ Icon } from 'semantic-ui-react';
 class Segment extends React.Component {
 
   render() {
-    // console.log(this.props.results);
+    console.log('segment', this.props.results);
     return (
 
       <div className='ui vertical stripe segment'>
@@ -16,9 +16,8 @@ class Segment extends React.Component {
           {
             this.props.results ?
               this.props.results.length > 0 ?
-                <ImageGrid results={this.props.results} /> : 
-                <label className='meta'>No results.</label>
-              : null
+                <ImageGrid results={this.props.results} /> : <label className='meta'>No results.</label>
+              : <ImageGrid />
           }
 
           {/*
@@ -45,16 +44,8 @@ class Segment extends React.Component {
   }
 }
 
-// Segment.defaultProps = {
-//   label: 'Segment Header',
-//   results: [{
-//     label: '???',
-//     id: 0,
-//     thumbnail: {
-//       path: 'https:/via.placeholder.com/150x225',
-//       extension: 'jpg'
-//     }
-//   }]
-// }
+Segment.defaultProps = {
+  label: 'Header'
+}
 
 export default Segment;

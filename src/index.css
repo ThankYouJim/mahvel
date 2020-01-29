@@ -1,0 +1,71 @@
+body {
+  font-family: "Roboto Bold", "Trebuchet MS", Helvetica, Arial, sans-serif !important;
+}
+
+#root {
+  position: relative;
+  min-height: 100vh;
+  /* if considering mobile UX*/
+  /*min-height: 100%;*/
+}
+
+.mastpad {
+  padding-top: 5rem;
+}
+
+.masthead.segment {
+  min-height: 20rem;
+}
+
+.marvel-text {
+  letter-spacing: -2px;
+  font-family: 'Bebas Neue', cursive;
+  background-color: red;
+  margin: 0px 4px;
+  padding: 0px 3px;
+}
+
+.banner {
+  background-image: url('./img/Marvel_Universe.png');
+  /* fallback */
+  background-image: url('./img/Marvel_Universe.png'), linear-gradient(#000000, #d13531) !important;
+  /* W3C */
+}
+
+.tags {
+  margin-top: 1rem;
+}
+
+.content {
+  padding-bottom: 7rem;
+}
+
+.footer {
+  position: absolute !important;
+  bottom: 0;
+  width: 100%;
+  height: 7rem;
+  /*padding: 2rem 0rem !important;*/
+}
+
+.ui.vertical.stripe {
+  padding: 4rem 0rem;
+}
+
+/*.flex {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex !important;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  justify-content: center;
+}*/
+
+.nothing-message {
+  font-style: italic;
+  color: darkgray;
+  padding-top: 3rem;
+  text-align: center;
+}

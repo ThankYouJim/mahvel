@@ -1,7 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './component/App';
-import 'semantic-ui-less/semantic.less'
-import '../src/component/index.css';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import App from './component/App';
+import reducer from './reducers';
+
+import 'semantic-ui-less/semantic.less'
+import '../src/index.css';
+
+ReactDOM.render(
+  <Provider store={createStore(reducer)}>
+    <App />
+  </Provider>, 
+  document.getElementById('root')
+);

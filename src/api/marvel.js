@@ -1,5 +1,4 @@
 import axios from 'axios';
-// import { setup } from 'axios-cache-adapter';
 import md5 from 'md5';
 
 const ts = new Date().getTime();
